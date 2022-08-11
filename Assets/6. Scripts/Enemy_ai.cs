@@ -20,7 +20,7 @@ public class Enemy_ai : MonoBehaviour
     CameraController cam;
     PartyManager partyManager; //SJM
     EventManager eventManager; //SJM
-
+    GameObject objparty;     // party 위치값을 항상 가지기 위함임
     public int code;        // code enemy 고유값
     //밸류
     public int value;
@@ -39,6 +39,12 @@ public class Enemy_ai : MonoBehaviour
     public float maxReadyDelay = 2;        // 최대 딜레이
     float curShotDelay = 0;     // 현재 딜레이
     public float maxShotDelay = 2; //    딜레이 총량?
+    float d_x;                      // d_x,d_y,regular,regular_d는 kidnap 즉 race가 상대방을 납치할때 쓰이는 용도로 쓰입니다.
+    float d_y;
+    float regular;
+    float reqular_d;
+    Vector3 knap_destination;
+
     public GameObject player;
     public SpriteRenderer sprite_render;
 
@@ -50,6 +56,7 @@ public class Enemy_ai : MonoBehaviour
     public bool isRooted = false; //속박됨 SJM
     public bool inrange = false; // true 일때 공격 범위내에 캐릭터가 존재함
     public bool bullet_attack = false;  // shot foxball 코루틴 여러번 돌지 않게 하기 위한 것
+    public bool iskidnap = false;       // race 납치중일떄 iskidnap true 그렇지 않으면 false
     public GameObject fox_ball;     // 구미호 bullet prefab
     public Transform fox_ball1;     // 구미호볼 1,2,3 
     public Transform fox_ball2;
@@ -88,12 +95,14 @@ public class Enemy_ai : MonoBehaviour
 
     public GameObject atk_range_image;          // 공격 범위 이미지화
     public GameObject atk_range;                // 어택 ragne 회전을 위함임
+
+    public GameObject dummy;                    // dummy
     void Start()
     {
         cam = GameObject.Find("Main Camera").GetComponent<CameraController>(); //게임오브젝트를 신 안에서 찾은 후 스크립트 연결(프리펩시 필수!)
         //eventManager = GameObject.Find("EventManager").GetComponent<EventManager>(); //이벤트 매니저 찾기 SJM
         partyManager = GameObject.Find("Party").GetComponent<PartyManager>();  //파티(플레이어)찾기 SJM
-
+        objparty = GameObject.Find("Party");
         stab = new status_abnormality();
         rigid = GetComponent<Rigidbody2D>();
         aiPath = GetComponent<AIPath>();
@@ -149,13 +158,20 @@ public class Enemy_ai : MonoBehaviour
 
     void state()
     {
+        
         //Debug.Log("enemy_state : " + enemy_state);
-        if (enemy_state == e_state.Follow)
+        if(iskidnap)
+        {
+            kid_nap();
+            
+        }
+        else if (enemy_state == e_state.Follow)
         {
 
         }
         else if (enemy_state == e_state.attack)
         {
+            move_false();
             //Debug.Log("can_move" + bullet1.can_move);
             //Debug.Log("can_move" + bullet1.can_move);
             attack_direction();         // 공격할때 어디로 해야할지 방향을 탐지
@@ -183,7 +199,6 @@ public class Enemy_ai : MonoBehaviour
                         make_ball = true;
                         StartCoroutine("shot_foxball");
                         bullet1 = null;
-                        
                         break;
                     case 104:                                                  // 이매망량 2페 ew
                         partyManager.StartCoroutine("onDamage_party");
@@ -207,8 +222,9 @@ public class Enemy_ai : MonoBehaviour
                         partyManager.get_enemy(this);                           // 자폭맨 -> 폭죽
                         partyManager.StartCoroutine("onDamage_party");
                         break;
-                    case 1001:                                                  // 천 요괴
+                    case 1001:                                                  // 천 요괴 race
                         partyManager.StartCoroutine("onDamage_party");
+                        iskidnap = true;
                         race();
                         break;
                 }
@@ -239,7 +255,7 @@ public class Enemy_ai : MonoBehaviour
         }
         else if (enemy_state == e_state.attack_ready)
         {
-            Debug.Log("지금은 state attack_ready");
+            //Debug.Log("지금은 state attack_ready");
             if (can_attack)
             {
                 ready_to_attack();
@@ -331,6 +347,35 @@ public class Enemy_ai : MonoBehaviour
         }
     }
 
+    public void kid_nap()
+    {
+        objparty = GameObject.Find("Party");                                // 실시간으로 위치 정보를 다시 가져옴
+        Debug.Log("objparty" + objparty.transform.position);
+
+
+        d_x = transform.position.x * 2 - objparty.transform.position.x;
+        d_y = transform.position.y * 2 - objparty.transform.position.y;
+        //Vector3 d = new Vector3(d_x, d_y, 0).normalized;
+        regular = Mathf.Sqrt(d_x * d_x + d_y * d_y);
+        reqular_d = 2f;                                                   // 이 값을 조절해서 뒤로 가는 차징거리 조절
+        d_x = d_x / regular;
+        d_y = d_y / regular;
+        //knap_destination = new Vector3((d_x * reqular_d) + transform.position.x, (d_y * reqular_d) + transform.position.y, 0);           // 점대칭을 통해서 뒤로 당겨야 하는 만큼 당김
+
+        move_false();
+        dummy.transform.position = new Vector3((d_x * reqular_d) + transform.position.x, (d_y * reqular_d) + transform.position.y, 0);
+        //transform.position = Vector3.MoveTowards(transform.position, knap_destination, 5f * Time.deltaTime);
+
+        //Debug.Log("knap_destination : " + knap_destination);
+
+
+        // 4줄요약
+        //Vector3 dir = transform.position - objparty.transform.position;
+        //dir = dir.normalized;
+        //move_false();
+        //dummy.transform.position += dir * reqular_d;
+
+    }
     public void move_false()
     {
         aiPath.canMove = false;

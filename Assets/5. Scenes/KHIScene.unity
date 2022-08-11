@@ -9335,6 +9335,7 @@ MonoBehaviour:
   isRooted: 0
   inrange: 0
   bullet_attack: 0
+  iskidnap: 0
   fox_ball: {fileID: 0}
   fox_ball1: {fileID: 0}
   fox_ball2: {fileID: 0}
@@ -9353,6 +9354,7 @@ MonoBehaviour:
   enemy_state: 0
   atk_range_image: {fileID: 0}
   atk_range: {fileID: 0}
+  dummy: {fileID: 0}
 --- !u!114 &1009308387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -11748,6 +11750,7 @@ MonoBehaviour:
   isRooted: 0
   inrange: 0
   bullet_attack: 0
+  iskidnap: 0
   fox_ball: {fileID: 0}
   fox_ball1: {fileID: 0}
   fox_ball2: {fileID: 0}
@@ -11766,6 +11769,7 @@ MonoBehaviour:
   enemy_state: 0
   atk_range_image: {fileID: 0}
   atk_range: {fileID: 0}
+  dummy: {fileID: 0}
 --- !u!114 &1417277384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18396,7 +18400,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1884214262}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_Children:
   - {fileID: 1885124194}
